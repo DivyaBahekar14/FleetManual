@@ -1,88 +1,301 @@
-# Fleet Manual AI Assistant
+# 🚛 Fleet Manual AI Assistant
 
-Fleet Manual AI Assistant is a web-based AI chatbot for answering fleet-management questions using vehicle manuals and IoT truck data.
+<p align="center">
+  <b>🤖 An AI-powered assistant for fleet manuals, vehicle information, and live IoT data</b>
+</p>
 
-The project uses **React + Vite** for the frontend and **FastAPI + LangGraph + RAG** for the backend. It retrieves relevant information from fleet manuals using embeddings and ChromaDB, classifies the user's query, and uses Gemini to generate the final answer.
+<p align="center">
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
+  <img src="https://img.shields.io/badge/FastAPI-Python-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
+  <img src="https://img.shields.io/badge/LangGraph-Agent%20Workflow-1C3C3C?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/ChromaDB-Vector%20Database-FF6B35?style=for-the-badge" />
+</p>
 
-## Features
+---
 
-- Ask questions about fleet vehicles through a chat interface.
-- Search information from fleet manuals using RAG.
-- Use IoT truck data for vehicle-related queries.
-- Classify queries into:
-  - Manual
-  - IoT
-  - Hybrid
-  - Invalid
-- Use a Supervisor Agent and Information Agent workflow.
-- Store document embeddings in ChromaDB.
-- Process PDF documents containing text and tables.
-- Support OCR for scanned document content.
-- Use semantic chunking for better retrieval.
-- Generate answers using Google Gemini.
+## 🌟 Overview
 
-## Technology Stack
+**Fleet Manual AI Assistant** is a web-based AI chatbot designed to help users get information about fleet vehicles quickly and naturally.
 
-### Frontend
+Instead of manually searching through large vehicle manuals, users can simply ask a question in the chat interface. The system identifies the type of question, retrieves relevant information from the fleet manuals or IoT data, and uses **Google Gemini** to generate the final response.
 
-- React
-- Vite
-- Tailwind CSS
-- Axios
-- JavaScript
+The project combines **RAG (Retrieval-Augmented Generation)** with an **AI agent workflow** to provide context-based answers.
 
-### Backend
+### 💡 What can it answer?
 
-- Python
-- FastAPI
-- LangGraph
-- LangChain
-- Google Gemini
-- Sentence Transformers
-- ChromaDB
-- scikit-learn
-- PyPDF
-- pdfplumber
-- PyMuPDF
-- Tesseract OCR
+- 📖 Questions about fleet manuals
+- 🔧 Maintenance-related information
+- 🚛 Vehicle specifications
+- 📡 Live/sample IoT truck information
+- ⛽ Fuel-related information
+- 🌡️ Engine temperature and sensor information
+- 📍 Truck location and status
+- 🔀 Questions requiring both manual + IoT information
 
-## Project Structure
+---
+
+## ✨ Key Features
+
+### 🤖 1. AI-Powered Chat
+
+Users can interact with the system through a simple chat interface.
+
+```text
+User: What is the fuel tank capacity of the Blazo X?
+
+                ↓
+
+        🧠 AI Processing
+
+                ↓
+
+      📚 Manual Retrieval
+
+                ↓
+
+          🤖 Gemini
+
+                ↓
+
+       💬 Final Answer
+```
+
+---
+
+### 🧭 2. Intelligent Intent Classification
+
+Before answering a question, the system identifies what type of information is required.
+
+| Intent | Purpose |
+|---|---|
+| 📖 `manual` | Information available in the fleet manuals |
+| 📡 `iot` | Current/sample truck IoT information |
+| 🔀 `hybrid` | Requires both manual and IoT information |
+| ❌ `invalid` | Question is outside the fleet-management domain |
+
+The project uses **Sentence Transformers** and cosine similarity for intent classification, with a keyword-based fallback when the local embedding model is unavailable.
+
+---
+
+### 🧠 3. Supervisor + Information Agent
+
+The backend uses a simple agent workflow built with **LangGraph**.
+
+#### 👨‍💼 Supervisor Agent
+
+The Supervisor Agent:
+
+- Receives the user's query
+- Checks whether the query is valid
+- Classifies the intent
+- Routes the query to the Information Agent
+
+#### 📚 Information Agent
+
+The Information Agent:
+
+- Retrieves relevant manual information
+- Reads truck IoT data when required
+- Builds the context for the LLM
+- Sends the context and question to Gemini
+- Returns the generated answer
+
+---
+
+## 🏗️ System Architecture
+
+```mermaid
+flowchart TD
+
+    U["👤 User"] --> UI["💻 React Chat UI"]
+
+    UI --> API["⚡ FastAPI Backend"]
+
+    API --> S["🧭 Supervisor Agent"]
+
+    S --> I{"Intent Classification"}
+
+    I -->|📖 Manual| R["🔎 ChromaDB Retrieval"]
+    I -->|📡 IoT| D["🚛 IoT Truck Data"]
+    I -->|🔀 Hybrid| R
+    I -->|🔀 Hybrid| D
+    I -->|❌ Invalid| E["❌ Invalid Query"]
+
+    R --> C["📚 Retrieved Manual Context"]
+    D --> C
+
+    C --> A["🤖 Information Agent"]
+    A --> G["✨ Google Gemini"]
+
+    G --> A
+    A --> S
+
+    S --> UI
+    UI --> U
+```
+
+---
+
+## 🔎 RAG Pipeline
+
+The project uses **Retrieval-Augmented Generation (RAG)** to answer questions using information from the provided fleet manuals.
+
+### 📚 Document Processing
+
+The manual-processing pipeline performs the following steps:
+
+```text
+PDF Manuals
+    │
+    ▼
+📄 PDF Parsing
+    │
+    ├── Text Extraction
+    ├── Table Extraction
+    └── OCR for scanned content
+    │
+    ▼
+🧹 Text Cleaning
+    │
+    ▼
+✂️ Semantic Chunking
+    │
+    ▼
+🧠 Embeddings
+    │
+    ▼
+🗄️ ChromaDB
+    │
+    ▼
+🔎 Similarity Search
+    │
+    ▼
+📚 Relevant Context
+    │
+    ▼
+🤖 Gemini
+    │
+    ▼
+💬 Final Answer
+```
+
+The current project includes:
+
+- `manual.pdf`
+- `blazo-brochure.pdf`
+
+These documents are processed and stored in the ChromaDB vector store.
+
+---
+
+## 📡 IoT Data
+
+The project also contains truck data in:
+
+```text
+iot_data/trucks.json
+```
+
+This data can be used for questions related to:
+
+- ⛽ Fuel
+- 🌡️ Temperature
+- 📍 Location
+- 🚗 Speed
+- 📊 Truck status
+- 📡 Telemetry
+
+Example questions:
+
+```text
+What is TruckA's current fuel level?
+
+Where is TruckA currently located?
+
+What is TruckB's engine temperature?
+
+Which truck has the highest engine temperature?
+
+Show the current fleet status.
+```
+
+---
+
+## 🛠️ Tech Stack
+
+### 🎨 Frontend
+
+- ⚛️ **React 19**
+- ⚡ **Vite**
+- 🎨 **Tailwind CSS**
+- 📡 **Axios**
+- 🟨 **JavaScript**
+
+### ⚙️ Backend
+
+- 🐍 **Python**
+- 🚀 **FastAPI**
+- 🧩 **LangGraph**
+- 🔗 **LangChain**
+- 🤖 **Google Gemini**
+- 🧠 **Sentence Transformers**
+- 📐 **scikit-learn**
+- 🔢 **NumPy**
+
+### 📚 RAG & Document Processing
+
+- 🗄️ **ChromaDB**
+- 📄 **PyPDF**
+- 📊 **pdfplumber**
+- 🖼️ **PyMuPDF**
+- 🔤 **Tesseract OCR**
+- 🧠 **Google Generative AI Embeddings**
+
+---
+
+## 📁 Project Structure
 
 ```text
 FleetManualDivya/
 │
-├── backend/
-│   ├── agents/
+├── 📂 backend/
+│   │
+│   ├── 📂 agents/
 │   │   ├── information_agent.py
 │   │   ├── supervisor_agent.py
-│   │   ├── workflow.py
-│   │   └── testingFiles/
+│   │   └── workflow.py
 │   │
-│   ├── graph/
+│   ├── 📂 graph/
 │   │   ├── state.py
 │   │   └── workflow.py
 │   │
-│   ├── services/
+│   ├── 📂 services/
 │   │   └── intent_classifier.py
 │   │
-│   ├── testingFiles/
-│   ├── chromadb/
+│   ├── 📂 chromadb/
+│   │   └── Vector database
+│   │
+│   ├── 📂 testingFiles/
+│   │   └── Testing and experimentation files
+│   │
 │   ├── main.py
 │   └── store.py
 │
-├── frontend/
-│   ├── src/
-│   │   ├── components/
+├── 📂 frontend/
+│   │
+│   ├── 📂 src/
+│   │   ├── 📂 components/
 │   │   │   ├── ChatWindow.jsx
 │   │   │   ├── InputBox.jsx
 │   │   │   ├── Message.jsx
 │   │   │   ├── Navbar.jsx
 │   │   │   └── Sidebar.jsx
 │   │   │
-│   │   ├── pages/
+│   │   ├── 📂 pages/
 │   │   │   └── Home.jsx
 │   │   │
-│   │   ├── services/
+│   │   ├── 📂 services/
 │   │   │   └── api.js
 │   │   │
 │   │   ├── App.jsx
@@ -91,157 +304,75 @@ FleetManualDivya/
 │   ├── package.json
 │   └── vite.config.js
 │
-├── iot_data/
+├── 📂 iot_data/
 │   └── trucks.json
 │
-├── manuals/
+├── 📂 manuals/
 │   ├── manual.pdf
 │   └── blazo-brochure.pdf
 │
-├── requirements.txt
-├── main.py
-└── .env
+├── 📄 requirements.txt
+├── 📄 main.py
+└── 🔐 .env
 ```
 
-## How It Works
+---
 
-The application follows this basic flow:
+## 🚀 Getting Started
 
-```text
-User Question
-      │
-      ▼
-React Frontend
-      │
-      ▼
-FastAPI Backend
-      │
-      ▼
-Supervisor Agent
-      │
-      ▼
-Intent Classification
-      │
-      ├── Manual ──────► ChromaDB / Fleet Manual
-      │
-      ├── IoT ─────────► Truck IoT Data
-      │
-      └── Hybrid ──────► Manual + IoT Data
-                              │
-                              ▼
-                       Information Agent
-                              │
-                              ▼
-                       Gemini LLM
-                              │
-                              ▼
-                         Final Answer
-                              │
-                              ▼
-                       React Chat UI
-```
+### 📌 Prerequisites
 
-## RAG Pipeline
+Make sure the following are installed:
 
-The manual documents are processed before they are used for question answering.
+- 🐍 Python 3.10+
+- 🟢 Node.js
+- 📦 npm
+- 🔑 Google Gemini API key
 
-1. Read the PDF manuals.
-2. Extract text and tables.
-3. Extract text from scanned pages using OCR when required.
-4. Clean and normalize the extracted content.
-5. Split the content into semantic chunks.
-6. Generate embeddings for the chunks.
-7. Store the chunks and embeddings in ChromaDB.
-8. When a user asks a question, generate an embedding for the query.
-9. Retrieve the most relevant chunks from ChromaDB.
-10. Send the retrieved information to Gemini.
-11. Generate an answer using the provided context.
+---
 
-The main ingestion code is available in:
+## ⚙️ Backend Setup
 
-```text
-backend/store.py
-```
-
-To run the ingestion pipeline:
-
-```bash
-python -m backend.store
-```
-
-## AI Agent Workflow
-
-### Supervisor Agent
-
-The Supervisor Agent receives the user's question and determines the query intent.
-
-It can classify a question as:
-
-- `manual`
-- `iot`
-- `hybrid`
-- `invalid`
-
-It then routes the request to the Information Agent.
-
-### Information Agent
-
-The Information Agent collects the required information based on the intent.
-
-For a manual query, it retrieves relevant chunks from ChromaDB.
-
-For an IoT query, it uses the truck data stored in:
-
-```text
-iot_data/trucks.json
-```
-
-For a hybrid query, it uses both manual information and IoT data.
-
-The collected information is then provided to Gemini to generate the final response.
-
-## Installation
-
-### 1. Clone the repository
+### 1️⃣ Clone the repository
 
 ```bash
 git clone <your-repository-url>
 cd FleetManualDivya
 ```
 
-### 2. Create a Python virtual environment
+### 2️⃣ Create a Python virtual environment
 
-Windows:
+#### Windows
 
 ```bash
 python -m venv venv
 venv\Scripts\activate
 ```
 
-macOS/Linux:
+#### macOS / Linux
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-### 3. Install backend dependencies
+### 3️⃣ Install Python dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configure the API key
+### 4️⃣ Configure environment variables
 
-Create a `.env` file in the project root:
+Create a `.env` file in the project root and add your Google API key:
 
 ```env
 GOOGLE_API_KEY=your_google_api_key
 ```
 
-Do not commit your `.env` file to GitHub.
+> 🔐 **Important:** Never upload your API key or `.env` file to GitHub.
 
-## Running the Backend
+### 5️⃣ Start the backend
 
 From the project root:
 
@@ -249,27 +380,29 @@ From the project root:
 uvicorn main:app --reload
 ```
 
-The backend will run at:
+The backend will be available at:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-You can also open the API documentation at:
+API documentation:
 
 ```text
 http://127.0.0.1:8000/docs
 ```
 
-## Running the Frontend
+---
 
-Open another terminal and move to the frontend folder:
+## 💻 Frontend Setup
+
+Open another terminal:
 
 ```bash
 cd frontend
 ```
 
-Install the dependencies:
+Install dependencies:
 
 ```bash
 npm install
@@ -281,19 +414,19 @@ Start the development server:
 npm run dev
 ```
 
-The frontend will normally be available at:
+The frontend will normally run at:
 
 ```text
 http://localhost:5173
 ```
 
-## API
+---
 
-### Health Check
+## 🔌 API
 
-```http
-GET /
-```
+### `GET /`
+
+Checks whether the backend is running.
 
 Example response:
 
@@ -303,70 +436,172 @@ Example response:
 }
 ```
 
-### Ask a Question
+### `POST /ask`
 
-```http
-POST /ask
-```
+Sends a user question to the AI workflow.
 
 Request:
 
 ```json
 {
-  "question": "What is the specification of BLAZO X 28 CARGO?"
+  "question": "What is the fuel tank capacity of the Blazo X?"
 }
 ```
 
-Response:
+The backend processes the question through the agent workflow and returns the generated answer.
 
-```json
-{
-  "success": true,
-  "question": "What is the specification of BLAZO X 28 CARGO?",
-  "answer": "..."
-}
-```
+---
 
-## Example Questions
+## 🧪 Example Queries
 
-You can ask questions such as:
+### 📖 Manual Queries
 
 ```text
-What is the specification of BLAZO X 28 CARGO?
+What is the GVW of the Blazo X 28 Cargo?
 
-What is the maintenance schedule?
+What engine powers the Blazo X?
 
-How do I reset the GPS tracker?
+What is the fuel tank capacity?
 
-What is the current fuel level of the truck?
+What is the maximum engine power?
 
-What is the current temperature of the truck?
+What safety features are available?
 
-Tell me about the truck status and the related maintenance procedure.
+What is FuelSmart technology?
 ```
 
-## Important Notes
+### 📡 IoT Queries
 
-- The Google Gemini API key is required for Gemini-based generation and Google embeddings.
-- The frontend expects the backend to run on `http://127.0.0.1:8000`.
-- The backend allows requests from the Vite development server at `http://localhost:5173`.
-- The ChromaDB directory contains the locally persisted vector database.
-- The manual PDFs are stored in the `manuals` directory.
-- IoT sample data is stored in `iot_data/trucks.json`.
-- Do not upload API keys or other secrets to GitHub.
+```text
+What is TruckA's current fuel level?
 
-## Future Improvements
+What is TruckB's engine temperature?
 
-- Add authentication and user management.
-- Add support for uploading new manuals from the UI.
-- Add real-time IoT data integration.
-- Add conversation history.
-- Improve intent classification with additional training examples.
-- Add citations showing the manual page used for each answer.
-- Deploy the frontend and backend to the cloud.
+Where is TruckA currently located?
 
-## Author
+Which truck is moving the fastest?
 
-**Divya Bahekar**
+Which truck needs immediate attention?
+```
 
-Fleet Manual AI Assistant project built using React, FastAPI, RAG, LangGraph, ChromaDB, and Google Gemini.
+### 🔀 Hybrid Queries
+
+```text
+What is the current truck status and what should be checked if the temperature is high?
+
+Based on the truck data, what maintenance information should I refer to?
+```
+
+---
+
+## 🔄 Agent Workflow
+
+```mermaid
+sequenceDiagram
+
+    participant U as 👤 User
+    participant F as 💻 Frontend
+    participant API as ⚡ FastAPI
+    participant S as 🧭 Supervisor
+    participant I as 📚 Information Agent
+    participant DB as 🗄️ ChromaDB
+    participant IoT as 📡 IoT Data
+    participant G as 🤖 Gemini
+
+    U->>F: Ask question
+    F->>API: POST /ask
+    API->>S: Send query
+
+    S->>S: Classify intent
+
+    alt Manual Query
+        S->>I: Route to Information Agent
+        I->>DB: Search relevant chunks
+        DB-->>I: Return context
+    else IoT Query
+        S->>I: Route to Information Agent
+        I->>IoT: Read truck data
+        IoT-->>I: Return data
+    else Hybrid Query
+        S->>I: Route to Information Agent
+        I->>DB: Retrieve manual context
+        DB-->>I: Return context
+        I->>IoT: Read truck data
+        IoT-->>I: Return data
+    end
+
+    I->>G: Send question + context
+    G-->>I: Generate answer
+    I-->>S: Return response
+    S-->>API: Final response
+    API-->>F: JSON response
+    F-->>U: Display answer
+```
+
+---
+
+## 🧩 Important Components
+
+| Component | Responsibility |
+|---|---|
+| 🧭 Supervisor Agent | Validates and classifies user queries |
+| 📚 Information Agent | Collects required information and generates context |
+| 🔎 Intent Classifier | Detects manual, IoT, hybrid, or invalid queries |
+| 🗄️ ChromaDB | Stores and retrieves manual embeddings |
+| 📄 Store Pipeline | Parses, chunks, embeds, and stores manuals |
+| 🤖 Gemini | Generates the final natural-language response |
+| 📡 IoT Data | Provides truck telemetry/sample data |
+| 💻 React UI | Provides the chat interface |
+
+---
+
+## 🔐 Security Notes
+
+- Keep API keys inside `.env`.
+- Do not commit secrets to GitHub.
+- Add `.env` to `.gitignore`.
+- Use environment variables for API credentials.
+- Review the sample IoT data before deploying the application publicly.
+
+---
+
+## 🚧 Future Improvements
+
+Some useful improvements for future versions:
+
+- 🔐 Add user authentication
+- 📤 Add manual/PDF upload from the UI
+- 📡 Connect to real-time IoT devices
+- 💬 Store conversation history
+- 📌 Add source/page citations to RAG responses
+- 📊 Add fleet analytics dashboard
+- 🚨 Add alerts for abnormal truck conditions
+- ☁️ Deploy frontend and backend to the cloud
+- 🧪 Add automated evaluation for RAG responses
+- 🎯 Improve intent classification with more training examples
+
+---
+
+## 🎯 Project Goal
+
+The main goal of this project is to make **fleet information easier and faster to access**.
+
+Instead of searching through multiple manuals or checking different sources manually, the user can ask a question in natural language and let the AI workflow find the required information.
+
+> 🚛 **Ask. Retrieve. Reason. Respond.**
+
+---
+
+## 👨‍💻 Project
+
+**Fleet Manual AI Assistant**
+
+Built using:
+
+`React` • `FastAPI` • `LangGraph` • `RAG` • `ChromaDB` • `Sentence Transformers` • `Google Gemini`
+
+---
+
+<p align="center">
+  ⭐ If you find this project useful, consider giving it a star!
+</p>
