@@ -42,8 +42,15 @@ def ask_question(query: UserQuery):
             "answer": response["answer"]
         }
 
+
+    
     except Exception as e:
 
+
+
+
+
+        
         return {
             "success": False,
             "error": str(e)
